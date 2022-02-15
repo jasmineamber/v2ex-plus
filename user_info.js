@@ -6,13 +6,19 @@ function follow_or_bolck( _target, bash, undo, default_name ){
     var v = "撤销";
     _target.attr("value") == "撤销" && (bash = undo) && (v = default_name);
     _target.attr("value", "等待");
-    var url = location.origin+bash+btn_key;
-    if (bash.indexOf("follow") != -1) {
-        url = location.origin+bash+btn_once;
-    }
+    // 20220215 begin url拼接有误
+    // var url = location.origin+bash+btn_key;
+    // if (bash.indexOf("follow") != -1) {
+    //     url = location.origin+bash+btn_once;
+    // }
+    url = location.origin+bash+btn_once;
+    // 20220215 end
     //console.log(url);
     $.get(url, function(){
         _target.attr("value", v);
+        // 20220215 begin 关注/屏蔽后once?后面的数字会变, 临时处理, 隐藏用户信息
+        hidden_user_info();
+        // 20220215 end
     });
 }
 
@@ -54,7 +60,7 @@ var _user_follow = $("#userFollow");
 var _user_block = $("#userBlock");
 var _triangle_img = $("#userInfo > img");
 var avatar_src;
-var btn_key;
+// var btn_key;
 var btn_once;
 var display_loading_img;
 var display_userInfo;
@@ -95,7 +101,9 @@ $("#Main .avatar").mouseenter(function(){
         display_userInfo = setTimeout(function(){
             //各种原因决定不用 API 以获得更多数据
             $.get("https://www.v2ex.com/member/" + _reply_user_name, function(data){
-                data = data.substring(data.indexOf("id=\"Main\""), data.indexOf("class=\"fl\""));
+                // 20220215 begin class="fl"找不到了
+                // data = data.substring(data.indexOf("id=\"Main\""), data.indexOf("class=\"fl\""));
+                // 20220215 end
                 //获取用户信息
                 var id = RegExp("V2EX 第 ([0-9]+?) 号会员").exec(data)[1];
                 var location = RegExp("maps\\?q=(.+?)\"").exec(data);
@@ -104,12 +112,16 @@ $("#Main .avatar").mouseenter(function(){
                 var website = RegExp("\"(.+?)\".*?alt=\"Website.*?&nbsp;(.+?)<").exec(data);
                 var company = RegExp("building\"></li> &nbsp; <strong>(.*?)</strong> (.*?)</span>").exec(data);
                 var online = RegExp("ONLINE").exec(data);
-                btn_key = RegExp("/([0-9]+?\\?t=[0-9]+?)';").exec(data);
+                // 20220215 begin btn_key找不到了
+                // btn_key = RegExp("/([0-9]+?\\?t=[0-9]+?)';").exec(data);
+                // 20220215 end
                 btn_once = RegExp("/([0-9]+?\\?once=[0-9]+?)';").exec(data);
                 var follow = RegExp("加入特别关注").test(data);
                 var block = RegExp("Block").test(data);
-                if(btn_key){
-                    btn_key = btn_key[1];//鼠标悬浮在自己头像无法获取 key
+                // 20220215 begin btn_key找不到了
+                if(btn_once){
+                    // btn_key = btn_key[1];//鼠标悬浮在自己头像无法获取 key
+                // 20220215 end
                     btn_once = btn_once[1];
                     follow && _user_follow.attr("value", "关注") || _user_follow.attr("value", "撤销");
                     block && _user_block.attr("value", "屏蔽") || _user_block.attr("value", "撤销");
@@ -120,7 +132,9 @@ $("#Main .avatar").mouseenter(function(){
 
                 setTimeout(function(){_this.attr( "src", _this.attr("vPlus-src") );}, 280);
                 _user_avatar.attr("src", _this.attr("vPlus-src") );
-                _user_name.text(_reply_user_name);
+                // 20220215 begin 关注/屏蔽后once?后面的数字会变, 临时处理, 强制重复获取
+                // _user_name.text(_reply_user_name);
+                // 20220215 begin
                 _user_id.text(id);
                 _user_location.html(location && location[1]+"&emsp;");
                 _user_created.text(created);
